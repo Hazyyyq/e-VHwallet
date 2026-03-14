@@ -114,7 +114,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'John Doe',
+                          widget.username.toUpperCase(),
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,
