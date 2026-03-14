@@ -18,7 +18,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   // Controller
   final page_controller = PageController();
-  int _currentPage = 0; // Track the current page index
 
   @override
   void dispose() {
@@ -103,11 +102,6 @@ class _MyHomePageState extends State<MyHomePage> {
               height: 200,
               child: PageView(
                 controller: page_controller,
-                onPageChanged: (index) {
-                  setState(() {
-                    _currentPage = index;
-                  });
-                },
                 scrollDirection: Axis.horizontal,
                 children: [
                   BalanceCard(balance: "150.50", cardColour: "0xFF000000"),
@@ -169,8 +163,52 @@ class _MyHomePageState extends State<MyHomePage> {
             // buttons
 
             // column of buttons (send, receive, swap
+          ],
+        ),
+      ),
 
-            //bottom navigation bar
+      //bottom navigation bar
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        elevation: 4,
+        backgroundColor: const Color.fromARGB(255, 228, 255, 120),
+        shape: CircleBorder(
+          side: BorderSide(color: Colors.black.withOpacity(0.1), width: 1),
+        ),
+        child: const Icon(Icons.qr_code_scanner_rounded, color: Colors.black),
+      ),
+
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+
+      bottomNavigationBar: BottomAppBar(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            IconButton(
+              icon: Icon (Icons.home_rounded),
+              color:Colors.black,
+              onPressed: () {
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.account_balance_wallet_rounded),
+              color: Colors.black54,
+              onPressed: () {
+              },
+            ),
+            SizedBox(width: 40), // Space for the floating action button
+            IconButton(
+              icon: Icon(Icons.bar_chart_rounded),
+              color: Colors.black54,
+              onPressed: () {
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.settings_rounded),
+              color: Colors.black54,
+              onPressed: () {
+              },
+            ),
           ],
         ),
       ),
