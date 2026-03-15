@@ -213,7 +213,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               );
 
-              // 3. Handle the result (Show Dialog if data exists)
+              // 3. Handle the result
               if (scannedData != null && mounted) {
                 showDialog(
                   context: context,
@@ -230,7 +230,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
               }
             } else if (status.isPermanentlyDenied) {
-              // Open app settings if they blocked it permanently
+              // Open app settings if blocked permanently
               openAppSettings();
             }
           },

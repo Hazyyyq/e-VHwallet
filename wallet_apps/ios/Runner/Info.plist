@@ -48,5 +48,7 @@
 
 	<key>NSCameraUsageDescription</key>
 <string>We need camera access to scan QR codes for your wallet transactions.</string>
+<key>NSPhotoLibraryUsageDescription</key>
+<string>We need access to your gallery to scan QR codes from your saved photos.</string>
 </dict>
 </plist>
