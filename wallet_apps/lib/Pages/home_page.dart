@@ -19,6 +19,10 @@ class _MyHomePageState extends State<MyHomePage> {
   // Controller
   final page_controller = PageController();
 
+  // Initilization
+
+  int currentIconIndex = 0;
+
   @override
   void dispose() {
     page_controller.dispose();
@@ -67,28 +71,35 @@ class _MyHomePageState extends State<MyHomePage> {
                   // Add Card
                   Spacer(),
 
-                  Container(
-                    padding: EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 217, 215, 215),
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color.fromARGB(
-                            255,
-                            118,
-                            117,
-                            117,
-                          ).withOpacity(0.5),
-                          spreadRadius: 2,
-                          blurRadius: 5,
-                          offset: Offset(0, 3), // shadow offset
-                        ),
-                      ],
-                    ),
-                    child: Icon(
-                      Icons.add,
-                      color: const Color.fromARGB(255, 0, 0, 0),
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        currentIconIndex = -1;
+                      });
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(255, 217, 215, 215),
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color.fromARGB(
+                              255,
+                              118,
+                              117,
+                              117,
+                            ).withOpacity(0.5),
+                            spreadRadius: 2,
+                            blurRadius: 5,
+                            offset: Offset(0, 3), // shadow offset
+                          ),
+                        ],
+                      ),
+                      child: Icon(
+                        Icons.add,
+                        color: const Color.fromARGB(255, 0, 0, 0),
+                      ),
                     ),
                   ),
                 ],
@@ -168,45 +179,71 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
 
       //bottom navigation bar
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        elevation: 4,
-        backgroundColor: const Color.fromARGB(255, 228, 255, 120),
-        shape: CircleBorder(
-          side: BorderSide(color: Colors.black.withOpacity(0.1), width: 1),
+      floatingActionButton: SizedBox(
+        width: 80,
+        height: 80,
+        child: FloatingActionButton(
+          onPressed: () {
+            setState(() {
+              currentIconIndex = -1;
+            });
+          },
+          elevation: 4,
+          backgroundColor: const Color.fromARGB(255, 228, 255, 120),
+          shape: CircleBorder(
+            side: BorderSide(color: Colors.black.withOpacity(0.1), width: 1),
+          ),
+          child: const Icon(
+            Icons.qr_code_scanner_rounded,
+            color: Colors.black,
+            size: 50,
+          ),
         ),
-        child: const Icon(Icons.qr_code_scanner_rounded, color: Colors.black, size: 40,),
       ),
-
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
 
       bottomNavigationBar: BottomAppBar(
+        shape: CircularNotchedRectangle(),
+        notchMargin: 10,
+
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             IconButton(
-              icon: Icon (Icons.home_rounded, size: 35,),
-              color:Colors.black,
+              icon: Icon(Icons.home_rounded, size: 35),
+              color: currentIconIndex == 0 ? Colors.black : Colors.black54,
               onPressed: () {
+                setState(() {
+                  currentIconIndex = 0;
+                });
               },
             ),
             IconButton(
-              icon: Icon(Icons.account_balance_wallet_rounded,  size: 35,),
-              color: Colors.black54,
+              icon: Icon(Icons.account_balance_wallet_rounded, size: 35),
+              color: currentIconIndex == 1 ? Colors.black : Colors.black54,
               onPressed: () {
+                setState(() {
+                  currentIconIndex = 1;
+                });
               },
             ),
             SizedBox(width: 40), // Space for the floating action button
             IconButton(
-              icon: Icon(Icons.bar_chart_rounded, size: 35,),
-              color: Colors.black54,
+              icon: Icon(Icons.bar_chart_rounded, size: 35),
+              color: currentIconIndex == 2 ? Colors.black : Colors.black54,
               onPressed: () {
+                setState(() {
+                  currentIconIndex = 2;
+                });
               },
             ),
             IconButton(
-              icon: Icon(Icons.settings_rounded, size: 35,),
-              color: Colors.black54,
+              icon: Icon(Icons.settings_rounded, size: 35),
+              color: currentIconIndex == 3 ? Colors.black : Colors.black54,
               onPressed: () {
+                setState(() {
+                  currentIconIndex = 3;
+                });
               },
             ),
           ],
