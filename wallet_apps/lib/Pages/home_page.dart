@@ -175,7 +175,7 @@ class _MyHomePageState extends State<MyHomePage> {
         shape: CircleBorder(
           side: BorderSide(color: Colors.black.withOpacity(0.1), width: 1),
         ),
-        child: const Icon(Icons.qr_code_scanner_rounded, color: Colors.black),
+        child: const Icon(Icons.qr_code_scanner_rounded, color: Colors.black, size: 40,),
       ),
 
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -185,26 +185,26 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             IconButton(
-              icon: Icon (Icons.home_rounded),
+              icon: Icon (Icons.home_rounded, size: 35,),
               color:Colors.black,
               onPressed: () {
               },
             ),
             IconButton(
-              icon: Icon(Icons.account_balance_wallet_rounded),
+              icon: Icon(Icons.account_balance_wallet_rounded,  size: 35,),
               color: Colors.black54,
               onPressed: () {
               },
             ),
             SizedBox(width: 40), // Space for the floating action button
             IconButton(
-              icon: Icon(Icons.bar_chart_rounded),
+              icon: Icon(Icons.bar_chart_rounded, size: 35,),
               color: Colors.black54,
               onPressed: () {
               },
             ),
             IconButton(
-              icon: Icon(Icons.settings_rounded),
+              icon: Icon(Icons.settings_rounded, size: 35,),
               color: Colors.black54,
               onPressed: () {
               },
