@@ -1,7 +1,16 @@
+// ================= Others Import ===============
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:permission_handler/permission_handler.dart';
+
+// ================= Pages Import ===============
+
+// ================= Components Import ===============
 import 'package:wallet_apps/Components/balance_card.dart';
 import 'package:wallet_apps/Components/bank_card.dart';
+
+// ================= Utilities Import ===============
+import 'package:wallet_apps/Utilities/qr_scanner_screen.dart';
 
 // ================= Home Screen ===============
 
@@ -179,14 +188,51 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
 
       //bottom navigation bar
+
+      // floating action button (QR code scanner)
       floatingActionButton: SizedBox(
         width: 80,
         height: 80,
         child: FloatingActionButton(
-          onPressed: () {
-            setState(() {
-              currentIconIndex = -1;
-            });
+          onPressed: () async {
+            // 1. Check for Camera Permission
+            var status = await Permission.camera.status;
+
+            if (status.isDenied) {
+              status = await Permission.camera.request();
+            }
+
+            if (status.isGranted) {
+              // 2. Set index and Navigate to QR Scanner
+              setState(() => currentIconIndex = -1);
+
+              final scannedData = await Navigator.push<String?>(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const QrScannerScreen(),
+                ),
+              );
+
+              // 3. Handle the result (Show Dialog if data exists)
+              if (scannedData != null && mounted) {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Scanned Data'),
+                    content: Text(scannedData),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('OK'),
+                      ),
+                    ],
+                  ),
+                );
+              }
+            } else if (status.isPermanentlyDenied) {
+              // Open app settings if they blocked it permanently
+              openAppSettings();
+            }
           },
           elevation: 4,
           backgroundColor: const Color.fromARGB(255, 228, 255, 120),
@@ -202,6 +248,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
 
+      // bottom navigation bar (menus icons)
       bottomNavigationBar: BottomAppBar(
         shape: CircularNotchedRectangle(),
         notchMargin: 10,
