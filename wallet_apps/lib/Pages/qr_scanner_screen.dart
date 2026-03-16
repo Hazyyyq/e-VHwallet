@@ -54,7 +54,10 @@ class _QrScannerScreenState extends State<QrScannerScreen>
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Scan QR Code', style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'Scan QR Code',
+          style: TextStyle(color: Colors.white),
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
           onPressed: () => Navigator.pop(context),
@@ -70,8 +73,12 @@ class _QrScannerScreenState extends State<QrScannerScreen>
               return IconButton(
                 onPressed: () => controller.toggleTorch(),
                 icon: Icon(
-                  value.torchState == TorchState.on ? Icons.flash_on : Icons.flash_off,
-                  color: value.torchState == TorchState.on ? const Color(0xFFE4FF78) : Colors.white,
+                  value.torchState == TorchState.on
+                      ? Icons.flash_on
+                      : Icons.flash_off,
+                  color: value.torchState == TorchState.on
+                      ? const Color(0xFFE4FF78)
+                      : Colors.white,
                 ),
               );
             },
@@ -87,7 +94,8 @@ class _QrScannerScreenState extends State<QrScannerScreen>
           CustomPaint(painter: ScannerOverlay(), child: Container()),
           AnimatedBuilder(
             animation: _animationController,
-            builder: (context, child) => ScannerLaser(animation: _animationController),
+            builder: (context, child) =>
+                ScannerLaser(animation: _animationController),
           ),
           const InstructionText(),
         ],
@@ -104,10 +112,21 @@ class _QrScannerScreenState extends State<QrScannerScreen>
     final uploadService = UploadImageService();
     final String? result = await uploadService.pickAndScan();
 
-    if (result != null && mounted && QrValidator.isBankQr(result)) {
-      Navigator.pop(context, result);
+    if (result != null && mounted) {
+      if (QrValidator.isBankQr(result)) {
+        // STEP 3 FIX: Parse the data from the gallery image too!
+        final Map<String, String> data = QrParser.parseEmvco(result);
+
+        // Show the same confirmation dialog we use for the live scanner
+        _showConfirmationDialog(data, result);
+      } else {
+        // If it's a QR but not a Bank QR
+        _showErrorSnackBar();
+        controller.start();
+        setState(() => isScanned = false);
+      }
     } else {
-      _showErrorSnackBar();
+      // If the user cancelled the gallery or no QR was found
       controller.start();
       setState(() => isScanned = false);
     }
@@ -140,13 +159,23 @@ class _QrScannerScreenState extends State<QrScannerScreen>
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF1E1E1E),
-        title: const Text("Confirm Transfer", style: TextStyle(color: Colors.white)),
+        title: const Text(
+          "Confirm Transfer",
+          style: TextStyle(color: Colors.white),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text("Recipient:", style: TextStyle(color: Colors.white70)),
-            Text(merchantName, style: const TextStyle(color: Color(0xFFE4FF78), fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(
+              merchantName,
+              style: const TextStyle(
+                color: Color(0xFFE4FF78),
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             const SizedBox(height: 10),
             const Text("Location:", style: TextStyle(color: Colors.white70)),
             Text(merchantCity, style: const TextStyle(color: Colors.white)),
@@ -159,10 +188,15 @@ class _QrScannerScreenState extends State<QrScannerScreen>
               controller.start();
               setState(() => isScanned = false);
             },
-            child: const Text("CANCEL", style: TextStyle(color: Colors.redAccent)),
+            child: const Text(
+              "CANCEL",
+              style: TextStyle(color: Colors.redAccent),
+            ),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFE4FF78)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFE4FF78),
+            ),
             onPressed: () {
               Navigator.pop(context);
               Navigator.pop(this.context, rawValue);
@@ -176,16 +210,25 @@ class _QrScannerScreenState extends State<QrScannerScreen>
 
   void _showErrorSnackBar() {
     setState(() => isErrorShowing = true);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Invalid QR. Please scan a DuitNow or Bank QR code.', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600)),
-        backgroundColor: const Color(0xFF51FFD6),
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 2),
-      ),
-    ).closed.then((_) {
-      if (mounted) setState(() => isErrorShowing = false);
-    });
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
+          SnackBar(
+            content: const Text(
+              'Invalid QR. Please scan a DuitNow or Bank QR code.',
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            backgroundColor: const Color(0xFF51FFD6),
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 2),
+          ),
+        )
+        .closed
+        .then((_) {
+          if (mounted) setState(() => isErrorShowing = false);
+        });
   }
 }
 
@@ -203,7 +246,11 @@ class InstructionText extends StatelessWidget {
       child: const Center(
         child: Text(
           'Align QR code within the frame',
-          style: TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.w500),
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ),
     );
