@@ -4,13 +4,14 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 // ================= Pages Import ===============
+import 'package:wallet_apps/Pages/qr_scanner_screen.dart';
+
 
 // ================= Components Import ===============
 import 'package:wallet_apps/Components/balance_card.dart';
 import 'package:wallet_apps/Components/bank_card.dart';
 
 // ================= Utilities Import ===============
-import 'package:wallet_apps/Utilities/qr_scanner_screen.dart';
 
 // ================= Home Screen ===============
 
