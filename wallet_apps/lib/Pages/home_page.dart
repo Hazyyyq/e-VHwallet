@@ -5,13 +5,14 @@ import 'package:permission_handler/permission_handler.dart';
 
 // ================= Pages Import ===============
 import 'package:wallet_apps/Pages/qr_scanner_screen.dart';
-
+import 'package:wallet_apps/Pages/transfer_amount_screen.dart';
 
 // ================= Components Import ===============
 import 'package:wallet_apps/Components/balance_card.dart';
 import 'package:wallet_apps/Components/bank_card.dart';
 
 // ================= Utilities Import ===============
+import 'package:wallet_apps/Utilities/qr_parser.dart';
 
 // ================= Home Screen ===============
 
@@ -216,17 +217,30 @@ class _MyHomePageState extends State<MyHomePage> {
 
               // 3. Handle the result
               if (scannedData != null && mounted) {
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('Scanned Data'),
-                    content: Text(scannedData),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('OK'),
-                      ),
-                    ],
+                // Parse data to get the Merchant Name for the next screen
+                final Map<String, String> data = QrParser.parseEmvco(
+                  scannedData,
+                );
+                String merchantName = data['59'] ?? "Unknown Merchant";
+                String city = data['60'] ?? "Unknown City";
+                String countryCode = data['58'] ?? "MY";
+
+                String displayLocation;
+
+                // If city and country are the same, or city is missing, just show "Malaysia"
+                if (city.isEmpty || city == countryCode) {
+                  displayLocation = city;
+                } else {
+                  displayLocation = "$city, $countryCode";
+                } // Navigate to TransferAmountScreen
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TransferAmountScreen(
+                      merchantName: merchantName,
+                      merchantLocation: displayLocation,
+                      qrData: scannedData,
+                    ),
                   ),
                 );
               }
