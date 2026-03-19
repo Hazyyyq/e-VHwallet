@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/wallet_provider.dart';
 import '../constants/app_colors.dart';
+import '../Pages/qr_scanner_screen.dart';
 
 class PayScreen extends StatefulWidget {
   const PayScreen({super.key});
@@ -107,9 +108,55 @@ class _PayScreenState extends State<PayScreen> {
                 },
               ),
             ),
-            const Spacer(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40),
+              child: _buildScanQrButton(context),
+            ),
+            const SizedBox(height: 24),
             _buildQuickActions(context),
             const SizedBox(height: 32),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildScanQrButton(BuildContext context) {
+    return GestureDetector(
+      onTap: () async {
+        final result = await Navigator.push<String>(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const QrScannerScreen(),
+          ),
+        );
+        if (result != null && mounted) {
+          Navigator.pop(context, result);
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 18),
+        decoration: BoxDecoration(
+          color: AppColors.primary,
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: const Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.qr_code_scanner_rounded,
+              color: Colors.black,
+              size: 24,
+            ),
+            SizedBox(width: 12),
+            Text(
+              'Scan QR Code',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
         ),
       ),
