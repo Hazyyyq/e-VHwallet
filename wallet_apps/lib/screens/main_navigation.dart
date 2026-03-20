@@ -170,9 +170,9 @@ class HomeContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MyHomePage(
+    return MyHomePage(
       title: 'VHWallet',
-      username: 'User',
+      username: username,
     );
   }
 }

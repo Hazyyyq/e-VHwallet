@@ -6,10 +6,15 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:wallet_apps/Utilities/upload_image.dart';
 import 'package:wallet_apps/Utilities/qr_validator.dart';
 import 'package:wallet_apps/Utilities/qr_parser.dart';
+import 'package:wallet_apps/Utilities/generate_ref.dart';
 
 // ================= Design Import ===============
 import 'package:wallet_apps/Design/scanner_overlay.dart';
 import 'package:wallet_apps/Design/scanner_laser.dart';
+
+// ================= Pages Import ===============
+import 'package:wallet_apps/Pages/transfer_amount_screen.dart';
+import 'package:wallet_apps/Pages/receipt_screen.dart';
 
 class QrScannerScreen extends StatefulWidget {
   const QrScannerScreen({super.key});
@@ -153,20 +158,39 @@ class _QrScannerScreenState extends State<QrScannerScreen>
   void _showConfirmationDialog(Map<String, String> data, String rawValue) {
     String merchantName = data['59'] ?? "Unknown Merchant";
     String merchantCity = data['60'] ?? "Unknown City";
+    String bankName = QrParser.identifyBank(data);
+    String? amount = data['54'];
+    bool isDynamic = data['01'] == "12";
+
+    if (merchantCity.toUpperCase() == "MY") {
+      merchantCity = "Malaysia";
+    }
 
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF1E1E1E),
-        title: const Text(
-          "Confirm Transfer",
-          style: TextStyle(color: Colors.white),
+        title: Text(
+          isDynamic ? "Verify Payment" : "Confirm Transfer",
+          style: const TextStyle(color: Colors.white),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (isDynamic && amount != null) ...[
+              const Text("Amount to Pay:", style: TextStyle(color: Colors.white70)),
+              Text(
+                "RM $amount",
+                style: const TextStyle(
+                  color: Color(0xFF51FFD6),
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const Divider(color: Colors.white24, height: 20),
+            ],
             const Text("Recipient:", style: TextStyle(color: Colors.white70)),
             Text(
               merchantName,
@@ -175,6 +199,15 @@ class _QrScannerScreenState extends State<QrScannerScreen>
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
+            ),
+            const SizedBox(height: 12),
+            const Text("Bank / Provider:", style: TextStyle(color: Colors.white70)),
+            Row(
+              children: [
+                const Icon(Icons.account_balance_rounded, color: Colors.white54, size: 18),
+                const SizedBox(width: 8),
+                Text(bankName, style: const TextStyle(color: Colors.white, fontSize: 16)),
+              ],
             ),
             const SizedBox(height: 10),
             const Text("Location:", style: TextStyle(color: Colors.white70)),
@@ -188,18 +221,36 @@ class _QrScannerScreenState extends State<QrScannerScreen>
               controller.start();
               setState(() => isScanned = false);
             },
-            child: const Text(
-              "CANCEL",
-              style: TextStyle(color: Colors.redAccent),
-            ),
+            child: const Text("CANCEL", style: TextStyle(color: Colors.redAccent)),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFE4FF78),
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFE4FF78)),
             onPressed: () {
               Navigator.pop(context);
-              Navigator.pop(this.context, rawValue);
+              if (isDynamic && amount != null) {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PaymentSuccessScreen(
+                      merchantName: merchantName,
+                      amount: amount!,
+                      refNumber: GenerateRef.generate(),
+                      date: '${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year} ${DateTime.now().hour}:${DateTime.now().minute.toString().padLeft(2, '0')}',
+                    ),
+                  ),
+                );
+              } else {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TransferAmountScreen(
+                      merchantName: merchantName,
+                      merchantLocation: merchantCity,
+                      qrData: rawValue,
+                    ),
+                  ),
+                );
+              }
             },
             child: const Text("PROCEED", style: TextStyle(color: Colors.black)),
           ),
