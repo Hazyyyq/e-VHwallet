@@ -6,7 +6,6 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:wallet_apps/Utilities/upload_image.dart';
 import 'package:wallet_apps/Utilities/qr_validator.dart';
 import 'package:wallet_apps/Utilities/qr_parser.dart';
-import 'package:wallet_apps/Utilities/generate_ref.dart';
 
 // ================= Design Import ===============
 import 'package:wallet_apps/Design/scanner_overlay.dart';
@@ -14,7 +13,7 @@ import 'package:wallet_apps/Design/scanner_laser.dart';
 
 // ================= Pages Import ===============
 import 'package:wallet_apps/Pages/transfer_amount_screen.dart';
-import 'package:wallet_apps/Pages/receipt_screen.dart';
+import 'package:wallet_apps/Pages/payment_review_screen.dart';
 
 class QrScannerScreen extends StatefulWidget {
   const QrScannerScreen({super.key});
@@ -228,14 +227,15 @@ class _QrScannerScreenState extends State<QrScannerScreen>
             onPressed: () {
               Navigator.pop(context);
               if (isDynamic && amount != null) {
-                Navigator.pushReplacement(
+                Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => PaymentSuccessScreen(
+                    builder: (context) => PaymentReviewScreen(
                       merchantName: merchantName,
+                      merchantLocation: merchantCity,
                       amount: amount!,
-                      refNumber: GenerateRef.generate(),
-                      date: '${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year} ${DateTime.now().hour}:${DateTime.now().minute.toString().padLeft(2, '0')}',
+                      qrData: rawValue,
+                      bankName: bankName,
                     ),
                   ),
                 );

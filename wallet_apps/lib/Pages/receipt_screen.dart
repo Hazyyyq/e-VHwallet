@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:wallet_apps/Utilities/receipt_download.dart'; // Ensure path is correct
+import 'package:wallet_apps/Utilities/receipt_download.dart';
+import 'package:wallet_apps/routes/app_routes.dart';
 
 class PaymentSuccessScreen extends StatelessWidget {
   final String merchantName;
@@ -89,7 +90,11 @@ class PaymentSuccessScreen extends StatelessWidget {
                     backgroundColor: const Color(0xFFE4FF78),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
-                  onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
+                  onPressed: () => Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    AppRoutes.home,
+                    (route) => false,
+                  ),
                   child: const Text("BACK TO HOME", 
                     style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
                 ),

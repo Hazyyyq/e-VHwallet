@@ -1,10 +1,12 @@
 // ================= Others Import ===============
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:provider/provider.dart';
 
 // ================= Components Import ===============
 import 'package:wallet_apps/Components/balance_card.dart';
 import 'package:wallet_apps/Components/bank_card.dart';
+import 'package:wallet_apps/providers/wallet_provider.dart';
 
 // ================= Home Screen ===============
 
@@ -34,152 +36,159 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white54,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // appbar
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: Row(
-                children: [
-                  // profile picture
-                  const Icon(
-                    Icons.person_3_rounded,
-                    size: 45,
-                    color: Color.fromARGB(255, 63, 61, 61),
-                  ),
-                  SizedBox(width: 10),
-
-                  // welcome message
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+    return Consumer<WalletProvider>(
+      builder: (context, wallet, child) {
+        return Scaffold(
+          backgroundColor: Colors.white54,
+          body: SafeArea(
+            child: Column(
+              children: [
+                // appbar
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: Row(
                     children: [
-                      Text(
-                        'Welcome back,',
-                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                      // profile picture
+                      const Icon(
+                        Icons.person_3_rounded,
+                        size: 45,
+                        color: Color.fromARGB(255, 63, 61, 61),
+                      ),
+                      const SizedBox(width: 10),
+
+                      // welcome message
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Welcome back,',
+                            style: TextStyle(fontSize: 16, color: Colors.grey),
+                          ),
+
+                          Text(
+                            widget.username,
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
 
-                      Text(
-                        widget.username,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                      // Add Card
+                      const Spacer(),
+
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            currentIconIndex = -1;
+                          });
+                        },
+                        child: Container(
+                          padding: EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: const Color.fromARGB(255, 217, 215, 215),
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color.fromARGB(
+                                  255,
+                                  118,
+                                  117,
+                                  117,
+                                ).withOpacity(0.5),
+                                spreadRadius: 2,
+                                blurRadius: 5,
+                                offset: Offset(0, 3), // shadow offset
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            Icons.add,
+                            color: const Color.fromARGB(255, 0, 0, 0),
+                          ),
                         ),
                       ),
                     ],
                   ),
+                ),
 
-                  // Add Card
-                  Spacer(),
+                const SizedBox(height: 25),
 
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        currentIconIndex = -1;
-                      });
-                    },
-                    child: Container(
-                      padding: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 217, 215, 215),
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color.fromARGB(
-                              255,
-                              118,
-                              117,
-                              117,
-                            ).withOpacity(0.5),
-                            spreadRadius: 2,
-                            blurRadius: 5,
-                            offset: Offset(0, 3), // shadow offset
-                          ),
-                        ],
+                // cards
+                SizedBox(
+                  height: 200,
+                  child: PageView(
+                    controller: page_controller,
+                    scrollDirection: Axis.horizontal,
+                    children: [
+                      BalanceCard(
+                        balance: wallet.balance.toStringAsFixed(2),
+                        cardColour: "0xFF000000",
                       ),
-                      child: Icon(
-                        Icons.add,
-                        color: const Color.fromARGB(255, 0, 0, 0),
+                      // Maybank
+                      BankCard(
+                        username: widget.username,
+                        balance: "2,450.50",
+                        expiryDate: "12/28",
+                        cardNumber: "**** **** **** 1234",
+                        cardType: "Maybank",
+                        cardColour: "0xFFE5B800", // Maybank Dark Yellow
                       ),
-                    ),
+
+                      // RHB
+                      BankCard(
+                        username: widget.username,
+                        balance: "1,120.00",
+                        expiryDate: "05/27",
+                        cardNumber: "**** **** **** 8890",
+                        cardType: "RHB",
+                        cardColour: "0xFF5BC2E7", // RHB Blue
+                      ),
+
+                      // Bank Rakyat
+                      BankCard(
+                        username: widget.username,
+                        balance: "5,300.20",
+                        expiryDate: "09/26",
+                        cardNumber: "**** **** **** 4456",
+                        cardType: "BankRakyat",
+                        cardColour: "0xFF005CAB", // Bank Rakyat Blue
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+
+                // dot indicator
+                const SizedBox(height: 15),
+
+                SmoothPageIndicator(
+                  controller: page_controller,
+                  count: 4,
+                  effect: ExpandingDotsEffect(
+                    activeDotColor: Colors.black,
+                    dotColor: Colors.grey.withOpacity(0.4),
+                    dotHeight: 8,
+                    dotWidth: 8,
+                    expansionFactor: 3,
+                  ),
+                  onDotClicked: (index) {
+                    page_controller.animateToPage(
+                      index,
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeInOut,
+                    );
+                  },
+                ),
+
+                // buttons
+
+                // column of buttons (send, receive, swap
+              ],
             ),
-
-            SizedBox(height: 25),
-
-            // cards
-            SizedBox(
-              height: 200,
-              child: PageView(
-                controller: page_controller,
-                scrollDirection: Axis.horizontal,
-                children: [
-                  BalanceCard(balance: "150.50", cardColour: "0xFF000000"),
-                  // Maybank
-                  BankCard(
-                    username: widget.username,
-                    balance: "2,450.50",
-                    expiryDate: "12/28",
-                    cardNumber: "**** **** **** 1234",
-                    cardType: "Maybank",
-                    cardColour: "0xFFE5B800", // Maybank Dark Yellow
-                  ),
-
-                  // RHB
-                  BankCard(
-                    username: widget.username,
-                    balance: "1,120.00",
-                    expiryDate: "05/27",
-                    cardNumber: "**** **** **** 8890",
-                    cardType: "RHB",
-                    cardColour: "0xFF5BC2E7", // RHB Blue
-                  ),
-
-                  // Bank Rakyat
-                  BankCard(
-                    username: widget.username,
-                    balance: "5,300.20",
-                    expiryDate: "09/26",
-                    cardNumber: "**** **** **** 4456",
-                    cardType: "BankRakyat",
-                    cardColour: "0xFF005CAB", // Bank Rakyat Blue
-                  ),
-                ],
-              ),
-            ),
-
-            // dot indicator
-            const SizedBox(height: 15),
-
-            SmoothPageIndicator(
-              controller: page_controller,
-              count: 4,
-              effect: ExpandingDotsEffect(
-                activeDotColor: Colors.black,
-                dotColor: Colors.grey.withOpacity(0.4),
-                dotHeight: 8,
-                dotWidth: 8,
-                expansionFactor: 3,
-              ),
-              onDotClicked: (index) {
-                page_controller.animateToPage(
-                  index,
-                  duration: const Duration(milliseconds: 500),
-                  curve: Curves.easeInOut,
-                );
-              },
-            ),
-
-            // buttons
-
-            // column of buttons (send, receive, swap
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
