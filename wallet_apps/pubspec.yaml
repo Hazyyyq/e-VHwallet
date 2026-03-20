@@ -38,6 +38,11 @@ dependencies:
   mobile_scanner:
   image_picker: 
   permission_handler:
+  crclib: 
+  intl:
+  pdf: 
+  printing: 
+  path_provider: 
 
 dev_dependencies:
   flutter_test:
