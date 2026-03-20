@@ -38,8 +38,11 @@ dependencies:
   mobile_scanner:
   image_picker: 
   permission_handler:
+  pdf: ^3.11.1
+  printing: ^5.13.3
   shared_preferences: ^2.3.5
   provider: ^6.1.2
+  intl: 
 
 dev_dependencies:
   flutter_test:
