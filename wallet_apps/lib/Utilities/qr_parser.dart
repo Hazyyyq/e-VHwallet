@@ -5,15 +5,12 @@ class QrParser {
 
     try {
       while (index < rawData.length) {
-        // 1. Get Tag 
         String tag = rawData.substring(index, index + 2);
         index += 2;
 
-        // 2. Get Length 
         int length = int.parse(rawData.substring(index, index + 2));
         index += 2;
 
-        // 3. Get Value based on that length 
         String value = rawData.substring(index, index + length);
         index += length;
 
@@ -23,5 +20,18 @@ class QrParser {
       print("Parsing Error: $e");
     }
     return results;
+  }
+
+  static String identifyBank(Map<String, String> data) {
+    String? psi = data['01'];
+    if (psi != null) {
+      if (psi.startsWith('12')) return 'DuitNow';
+      if (psi.startsWith('22')) return 'PayNet';
+    }
+    String? merchantCity = data['60'];
+    if (merchantCity != null && merchantCity.toUpperCase() == 'MY') {
+      return 'Bank Malaysia';
+    }
+    return 'Unknown Bank';
   }
 }

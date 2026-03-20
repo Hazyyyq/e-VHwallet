@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:provider/provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import '../providers/wallet_provider.dart';
 import '../constants/app_colors.dart';
 import '../Components/balance_card.dart';
 import '../Components/bank_card.dart';
-import '../Utilities/qr_parser.dart';
 import '../routes/app_routes.dart';
-import '../Pages/qr_scanner_screen.dart';
-import '../Pages/transfer_amount_screen.dart';
 
 class WalletPage extends StatefulWidget {
   const WalletPage({super.key, required this.title, required this.username});
@@ -23,8 +19,6 @@ class WalletPage extends StatefulWidget {
 
 class _WalletPageState extends State<WalletPage> {
   final page_controller = PageController();
-
-  int currentIconIndex = 1;
 
   @override
   void dispose() {
@@ -248,59 +242,6 @@ class _WalletPageState extends State<WalletPage> {
               ),
             ),
           ],
-        ),
-      ),
-      floatingActionButton: SizedBox(
-        width: 80,
-        height: 80,
-        child: FloatingActionButton(
-          onPressed: () async {
-            var status = await Permission.camera.status;
-
-            if (status.isDenied) {
-              status = await Permission.camera.request();
-            }
-
-            if (status.isGranted) {
-              setState(() => currentIconIndex = -1);
-
-              final scannedData = await Navigator.push<String?>(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const QrScannerScreen(),
-                ),
-              );
-
-              if (scannedData != null && mounted) {
-                final Map<String, String> data = QrParser.parseEmvco(
-                  scannedData,
-                );
-                String merchantName = data['59'] ?? "Unknown Merchant";
-                String city = data['60'] ?? "Unknown City";
-                String countryCode = data['58'] ?? "MY";
-
-                String displayLocation;
-
-                if (city.isEmpty || city == countryCode) {
-                  displayLocation = city;
-                } else {
-                  displayLocation = "$city, $countryCode";
-                }
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => TransferAmountScreen(
-                      merchantName: merchantName,
-                      merchantLocation: displayLocation,
-                      qrData: scannedData,
-                    ),
-                  ),
-                );
-              }
-            } else if (status.isPermanentlyDenied) {
-              openAppSettings();
-            }
-          },
         ),
       ),
     );
