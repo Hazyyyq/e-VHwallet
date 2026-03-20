@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Add this to pubspec.yaml
-import 'package:wallet_apps/Pages/payment_review_screen.dart';
 
 class TransferAmountScreen extends StatefulWidget {
   final String merchantName;
@@ -19,32 +17,30 @@ class TransferAmountScreen extends StatefulWidget {
 }
 
 class _TransferAmountScreenState extends State<TransferAmountScreen> {
-  // Store everything as an integer (cents) to keep the .00 format stable
-  int _amountInCents = 0;
-
-  // Helper to format the integer into a RM string (e.g., 500 -> 5.00)
-  String get _formattedAmount {
-    double dollars = _amountInCents / 100.0;
-    return NumberFormat.currency(symbol: '', decimalDigits: 2).format(dollars);
-  }
+  String amount = "0";
 
   void _updateAmount(String value) {
     setState(() {
       if (value == "back") {
-        // Remove the last digit (Integer division by 10)
-        _amountInCents = _amountInCents ~/ 10;
-      } else if (value == "00") {
-        // Add two zeros to the end
-        if (_amountInCents > 0 && _amountInCents < 1000000) {
-          _amountInCents = _amountInCents * 100;
+        if (amount.length > 1) {
+          amount = amount.substring(0, amount.length - 1);
+        } else {
+          amount = "0";
+        }
+      } else if (value == ".") {
+        if (!amount.contains(".")) {
+          amount += ".";
         }
       } else {
-        // Prevent amount from exceeding RM 99,999.99
-        if (_amountInCents > 999999) return;
-
-        // Shift existing digits left and add the new one
-        int digit = int.parse(value);
-        _amountInCents = (_amountInCents * 10) + digit;
+        if (amount == "0") {
+          amount = value;
+        } else {
+          // Limit to 2 decimal places
+          if (amount.contains(".") && amount.split(".")[1].length >= 2) {
+            return;
+          }
+          amount += value;
+        }
       }
     });
   }
@@ -71,18 +67,22 @@ class _TransferAmountScreenState extends State<TransferAmountScreen> {
           const SizedBox(height: 8),
           Text(
             widget.merchantName,
-            textAlign: TextAlign.center,
             style: const TextStyle(
               color: Color(0xFFE4FF78),
               fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 4),
+
+          const SizedBox(height: 4), // Small gap
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.location_on_outlined, color: Colors.white54, size: 16),
+              const Icon(
+                Icons.location_on_outlined,
+                color: Colors.white54,
+                size: 16,
+              ),
               const SizedBox(width: 4),
               Text(
                 widget.merchantLocation,
@@ -90,10 +90,9 @@ class _TransferAmountScreenState extends State<TransferAmountScreen> {
               ),
             ],
           ),
-          
           const Spacer(),
 
-          // --- The Cleaner Amount Display ---
+          // Amount Display
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -101,15 +100,14 @@ class _TransferAmountScreenState extends State<TransferAmountScreen> {
             children: [
               const Text(
                 "RM ",
-                style: TextStyle(color: Colors.white54, fontSize: 24, fontWeight: FontWeight.w600),
+                style: TextStyle(color: Colors.white54, fontSize: 24),
               ),
               Text(
-                _formattedAmount,
-                style: TextStyle(
-                  color: _amountInCents > 0 ? Colors.white : Colors.white24,
+                amount,
+                style: const TextStyle(
+                  color: Colors.white,
                   fontSize: 56,
                   fontWeight: FontWeight.bold,
-                  letterSpacing: -1,
                 ),
               ),
             ],
@@ -129,27 +127,20 @@ class _TransferAmountScreenState extends State<TransferAmountScreen> {
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFE4FF78),
-                  disabledBackgroundColor: Colors.white10,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   elevation: 0,
                 ),
-                onPressed: _amountInCents > 0
-                    ? () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => PaymentReviewScreen(
-                              merchantName: widget.merchantName,
-                              merchantLocation: widget.merchantLocation,
-                              amount: _formattedAmount,
-                              qrData: widget.qrData,
-                            ),
-                          ),
-                        )
+                onPressed: double.parse(amount) > 0
+                    ? () {
+                        // TODO: Proceed to PIN/Success Screen
+                      }
                     : null,
-                child: Text(
+                child: const Text(
                   "CONFIRM",
                   style: TextStyle(
-                    color: _amountInCents > 0 ? Colors.black : Colors.white30,
+                    color: Colors.black,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -170,7 +161,7 @@ class _TransferAmountScreenState extends State<TransferAmountScreen> {
           _buildKeyboardRow(["1", "2", "3"]),
           _buildKeyboardRow(["4", "5", "6"]),
           _buildKeyboardRow(["7", "8", "9"]),
-          _buildKeyboardRow(["00", "0", "back"]),
+          _buildKeyboardRow([".", "0", "back"]),
         ],
       ),
     );
@@ -185,24 +176,21 @@ class _TransferAmountScreenState extends State<TransferAmountScreen> {
           if (key == "back") {
             return IconButton(
               onPressed: () => _updateAmount("back"),
-              icon: const Icon(Icons.backspace_outlined, color: Colors.white, size: 28),
+              icon: const Icon(
+                Icons.backspace_outlined,
+                color: Colors.white,
+                size: 28,
+              ),
             );
           }
-          return InkWell(
-            onTap: () => _updateAmount(key),
-            borderRadius: BorderRadius.circular(50),
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              width: 70,
-              child: Center(
-                child: Text(
-                  key,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 28,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+          return TextButton(
+            onPressed: () => _updateAmount(key),
+            child: Text(
+              key,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 28,
+                fontWeight: FontWeight.w500,
               ),
             ),
           );
