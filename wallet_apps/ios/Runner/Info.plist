@@ -50,5 +50,10 @@
 <string>We need camera access to scan QR codes for your wallet transactions.</string>
 <key>NSPhotoLibraryUsageDescription</key>
 <string>We need access to your gallery to scan QR codes from your saved photos.</string>
+<key>NSPhotoLibraryAddUsageDescription</key>
+<string>We need access to save your payment receipts to your library.</string>
+<key>NSPhotoLibraryUsageDescription</key>
+<string>We need access to your library to save receipts.</string>
+
 </dict>
 </plist>

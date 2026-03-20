@@ -6,6 +6,7 @@ import 'package:permission_handler/permission_handler.dart';
 // ================= Pages Import ===============
 import 'package:wallet_apps/Pages/qr_scanner_screen.dart';
 import 'package:wallet_apps/Pages/transfer_amount_screen.dart';
+import 'package:wallet_apps/Pages/payment_review_screen.dart';
 
 // ================= Components Import ===============
 import 'package:wallet_apps/Components/balance_card.dart';
@@ -43,7 +44,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white54,
+      backgroundColor: const Color(0xFFF5F5F7),
       body: SafeArea(
         child: Column(
           children: [
@@ -208,7 +209,7 @@ class _MyHomePageState extends State<MyHomePage> {
               // 2. Set index and Navigate to QR Scanner
               setState(() => currentIconIndex = -1);
 
-              final scannedData = await Navigator.push<String?>(
+              final result = await Navigator.push<Map<String, dynamic>>(
                 context,
                 MaterialPageRoute(
                   builder: (context) => const QrScannerScreen(),
@@ -216,11 +217,15 @@ class _MyHomePageState extends State<MyHomePage> {
               );
 
               // 3. Handle the result
-              if (scannedData != null && mounted) {
+              if (result != null && mounted) {
+                final String rawValue = result['rawValue'];
+                //final Map<String, String> data = QrParser.parseEmvco(result,);
+                final Map<String, String> data = result['data'];
+                final bool isDynamic = result['isDynamic'] ?? false;
+                final String? amountFromQr = result['amount'];
+
                 // Parse data to get the Merchant Name for the next screen
-                final Map<String, String> data = QrParser.parseEmvco(
-                  scannedData,
-                );
+
                 String merchantName = data['59'] ?? "Unknown Merchant";
                 String city = data['60'] ?? "Unknown City";
                 String countryCode = data['58'] ?? "MY";
@@ -233,16 +238,32 @@ class _MyHomePageState extends State<MyHomePage> {
                 } else {
                   displayLocation = "$city, $countryCode";
                 } // Navigate to TransferAmountScreen
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => TransferAmountScreen(
-                      merchantName: merchantName,
-                      merchantLocation: displayLocation,
-                      qrData: scannedData,
+                if (isDynamic && amountFromQr != null) {
+                  // 🚀 DYNAMIC: Jump straight to Review Screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PaymentReviewScreen(
+                        merchantName: merchantName,
+                        merchantLocation: displayLocation,
+                        amount: amountFromQr,
+                        qrData: rawValue,
+                      ),
                     ),
-                  ),
-                );
+                  );
+                } else {
+                  // 💰 STATIC: Go to Enter Amount Screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TransferAmountScreen(
+                        merchantName: merchantName,
+                        merchantLocation: displayLocation,
+                        qrData: rawValue,
+                      ),
+                    ),
+                  );
+                }
               }
             } else if (status.isPermanentlyDenied) {
               // Open app settings if blocked permanently
