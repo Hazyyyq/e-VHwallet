@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:wallet_apps/providers/wallet_provider.dart';
 import 'package:wallet_apps/Pages/receipt_screen.dart';
 
-class PaymentReviewScreen extends StatelessWidget {
+class PaymentReviewScreen extends StatefulWidget {
   final String merchantName;
   final String merchantLocation;
   final String amount;
-  final String qrData; // Contains the Merchant ID/Account info
-  final String bankName; // You can pass the bank name from the home card
+  final String qrData;
+  final String bankName;
 
   const PaymentReviewScreen({
     super.key,
@@ -16,6 +18,13 @@ class PaymentReviewScreen extends StatelessWidget {
     required this.qrData,
     this.bankName = "DuitNow / Bank Transfer",
   });
+
+  @override
+  State<PaymentReviewScreen> createState() => _PaymentReviewScreenState();
+}
+
+class _PaymentReviewScreenState extends State<PaymentReviewScreen> {
+  bool _isProcessing = false;
 
   @override
   Widget build(BuildContext context) {
@@ -36,11 +45,10 @@ class PaymentReviewScreen extends StatelessWidget {
               padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
-                  // Big Amount Header
                   const SizedBox(height: 20),
                   const Text("Total Amount", style: TextStyle(color: Colors.white54)),
                   Text(
-                    "RM $amount",
+                    "RM ${widget.amount}",
                     style: const TextStyle(
                       color: Color(0xFFE4FF78),
                       fontSize: 42,
@@ -48,8 +56,6 @@ class PaymentReviewScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 40),
-
-                  // Receipt-style Container
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
@@ -58,11 +64,11 @@ class PaymentReviewScreen extends StatelessWidget {
                     ),
                     child: Column(
                       children: [
-                        _buildReviewRow("Recipient", merchantName, isBold: true),
-                        _buildReviewRow("Location", merchantLocation),
-                        _buildReviewRow("Payment Type", bankName),
+                        _buildReviewRow("Recipient", widget.merchantName, isBold: true),
+                        _buildReviewRow("Location", widget.merchantLocation),
+                        _buildReviewRow("Payment Type", widget.bankName),
                         const Divider(color: Colors.white12, height: 30),
-                        _buildReviewRow("Merchant ID", _extractMerchantID(qrData)),
+                        _buildReviewRow("Merchant ID", _extractMerchantID(widget.qrData)),
                         _buildReviewRow("Ref Number", "TRX-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}"),
                         _buildReviewRow("Date", "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"),
                       ],
@@ -72,8 +78,6 @@ class PaymentReviewScreen extends StatelessWidget {
               ),
             ),
           ),
-
-          // Bottom Action Button
           Padding(
             padding: const EdgeInsets.all(24.0),
             child: SizedBox(
@@ -84,25 +88,46 @@ class PaymentReviewScreen extends StatelessWidget {
                   backgroundColor: const Color(0xFFE4FF78),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
-                onPressed: () {
-                  final String refID = "TRX-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}";
-  final String currentDate = "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year} ${DateTime.now().hour}:${DateTime.now().minute}";
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PaymentSuccessScreen(
-                        amount: amount,
-                        merchantName: merchantName,
-                        refNumber: refID,
-                        date: currentDate,
-                      ),
-                    ),
+                onPressed: _isProcessing ? null : () async {
+                  setState(() => _isProcessing = true);
+                  
+                  final wallet = Provider.of<WalletProvider>(context, listen: false);
+                  final paymentAmount = double.tryParse(widget.amount) ?? 0.0;
+                  
+                  await wallet.makePayment(
+                    amount: paymentAmount,
+                    merchantName: widget.merchantName,
+                    merchantLocation: widget.merchantLocation,
+                    pin: '123456',
                   );
+
+                  if (mounted) {
+                    final String refID = "TRX-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}";
+                    final String currentDate = "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year} ${DateTime.now().hour}:${DateTime.now().minute.toString().padLeft(2, '0')}";
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PaymentSuccessScreen(
+                          amount: widget.amount,
+                          merchantName: widget.merchantName,
+                          refNumber: refID,
+                          date: currentDate,
+                        ),
+                      ),
+                      (route) => route.isFirst,
+                    );
+                  }
                 },
-                child: const Text(
-                  "PAY NOW",
-                  style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
-                ),
+                child: _isProcessing
+                    ? const SizedBox(
+                        height: 24,
+                        width: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                      )
+                    : const Text(
+                        "PAY NOW",
+                        style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
               ),
             ),
           ),
@@ -111,7 +136,6 @@ class PaymentReviewScreen extends StatelessWidget {
     );
   }
 
-  // Helper to build the information rows
   Widget _buildReviewRow(String label, String value, {bool isBold = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -137,10 +161,7 @@ class PaymentReviewScreen extends StatelessWidget {
     );
   }
 
-  // Simple helper to get a chunk of the ID from QR Data
   String _extractMerchantID(String data) {
-    // In EMVCo, the Merchant ID is usually in Tag 02-15 or similar. 
-    // For now, we'll just show a shortened version of the raw data as a placeholder ID
     return data.length > 15 ? data.substring(0, 15).toUpperCase() : data;
   }
 }
