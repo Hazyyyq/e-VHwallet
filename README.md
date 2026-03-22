@@ -1,6 +1,7 @@
-# Wallet Apps - Flutter Mobile Wallet Application
+# SecureWallet - Case Study 2: Real-Time Fraud Shield for the Unbanked
 
-A professional mobile wallet application built with Flutter, designed for seamless digital payment and financial management experiences.
+
+A professional mobile wallet application built with Flutter, designed for seamless digital payment and financial management experiences that will keep the user financially safe from fraud and scam by providing multi layer safety features and fraud detection and flagging system.
 
 > **Note:** This application was originally designed for mobile phones. While it can run on desktop browsers (Chrome) and web, some features may not work as intended on laptops/desktops. For the best experience, please use a physical Android device.
 
