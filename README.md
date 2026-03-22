@@ -162,7 +162,7 @@ flutter run -d emulator
 
 ```bash
 # Navigate to the correct directory
-cd C:\Users\haziq\VHACKATON\e-VHwallet\wallet_apps
+cd C:\Users\...\e-VHwallet\wallet_apps
 
 # Then run your command
 flutter pub get
@@ -178,7 +178,7 @@ flutter run
 **Solution:**
 
 ```bash
-cd C:\Users\haziq\VHACKATON\e-VHwallet\wallet_apps
+cd C:\Users\...\e-VHwallet\wallet_apps
 ```
 
 ---
@@ -236,12 +236,12 @@ flutter pub get
    - Open **System Properties** > **Environment Variables**
    - Add Flutter bin directory to PATH:
      ```
-     C:\Users\haziq\Downloads\FlutterLearn\flutter\bin
+     C:\Users\...\Downloads\FlutterLearn\flutter\bin
      ```
 
 2. Or use the full path:
    ```bash
-   C:\Users\haziq\Downloads\FlutterLearn\flutter\bin\flutter.exe run
+   C:\Users\....\Downloads\FlutterLearn\flutter\bin\flutter.exe run
    ```
 
 ---
@@ -270,7 +270,7 @@ adb start-server
 
 ```bash
 # Navigate to Flutter SDK
-cd C:\Users\haziq\Downloads\FlutterLearn\flutter
+cd C:\Users\...\FlutterLearn\flutter
 
 # Clean cache
 git merge --abort
@@ -318,7 +318,7 @@ wallet_apps/
 ### Build for Windows
 
 ```bash
-cd C:\Users\haziq\VHACKATON\e-VHwallet\wallet_apps
+cd C:\Users\...\e-VHwallet\wallet_apps
 flutter build windows
 ```
 
