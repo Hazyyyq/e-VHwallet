@@ -49,6 +49,19 @@ git clone <repository-url>
 cd VHACKATON/e-VHwallet/wallet_apps
 ```
 
+Or simply:
+
+
+download the code from the github optiom:
+
+#1. Click the green Code button at the top of this repository.
+
+#2. Select Download ZIP.
+
+#3. Extract the files and navigate to the wallet_apps directory in your terminal.
+
+
+
 ### 2. Install Dependencies
 
 ```bash
@@ -66,14 +79,14 @@ This will download all required packages defined in `pubspec.yaml`.
 **Best for:** Quick testing and development on desktop
 
 ```bash
-cd C:\Users\haziq\VHACKATON\e-VHwallet\wallet_apps
+cd C:\Users\...\e-VHwallet\wallet_apps
 flutter run -d chrome
 ```
 
 Or simply:
 
 ```bash
-cd C:\Users\haziq\VHACKATON\e-VHwallet\wallet_apps
+cd C:\Users\...\e-VHwallet\wallet_apps
 flutter run
 ```
 
